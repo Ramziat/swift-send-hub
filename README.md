@@ -12,6 +12,13 @@ There are several ways of editing your application.
 
 Application web de transfert d’argent construite avec Vite, React, TypeScript, shadcn-ui et Tailwind CSS.
 
+## Structure du projet
+
+- `frontend/` — Application React (Vite)
+- `docs/` — Documentation MkDocs (Material)
+- `mkdocs.yml` — Configuration de la documentation
+- `docker-compose.yml` — Orchestration (à venir)
+
 ## Développement
 
 Le frontend se trouve dans `frontend/`.
@@ -54,6 +61,14 @@ VITE_API_INDIVIDUAL_PAYMENT_PATH=/api/payments/individual/
 VITE_API_BULK_PAYMENT_PATH=/api/payments/bulk/
 VITE_API_TRANSACTIONS_PATH=/api/transactions/
 ```
+
+## Fonctionnalités clés
+
+- Paiement individuel et en masse (CSV)
+- Rapport détaillé avec filtres (Tous/Réussis/Échoués)
+- Export du rapport en CSV/PDF
+- Notifications Web et confirmation vocale
+- Intégration possible avec backend Django (CORS + CSRF)
 
 ## Commits neutres
 
