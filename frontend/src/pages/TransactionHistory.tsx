@@ -6,8 +6,10 @@ import { Button } from '@/components/ui/button';
 import { Transaction } from '@/types';
 import { formatCurrency } from '@/utils/helpers';
 import { cn } from '@/lib/utils';
+import { useI18n } from '@/lib/i18n';
 
 const TransactionHistory = () => {
+  const { t, lang } = useI18n();
   const [transactions, setTransactions] = useState<Transaction[]>([]);
 
   useEffect(() => {
@@ -47,18 +49,18 @@ const TransactionHistory = () => {
   const getStatusLabel = (status: string) => {
     switch (status) {
       case 'success':
-        return 'Réussi';
+        return t('success');
       case 'failed':
-        return 'Échec';
+        return t('failed');
       case 'partial':
-        return 'Partiel';
+        return lang === 'fr' ? 'Partiel' : 'Partial';
       default:
-        return 'En cours';
+        return lang === 'fr' ? 'En cours' : 'Pending';
     }
   };
 
   const formatDate = (date: Date) => {
-    return new Intl.DateTimeFormat('fr-FR', {
+    return new Intl.DateTimeFormat(lang === 'fr' ? 'fr-FR' : 'en-GB', {
       day: '2-digit',
       month: 'short',
       year: 'numeric',
@@ -83,16 +85,16 @@ const TransactionHistory = () => {
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold text-foreground mb-2">
-              Historique
+              {t('history')}
             </h1>
             <p className="text-muted-foreground">
-              Consultez l'historique de vos transactions
+              {lang === 'fr' ? "Consultez l'historique de vos transactions" : 'View your transaction history'}
             </p>
           </div>
           {transactions.length > 0 && (
             <Button variant="outline" onClick={clearHistory}>
               <Trash2 className="w-4 h-4 mr-2" />
-              Effacer l'historique
+              {lang === 'fr' ? "Effacer l'historique" : 'Clear history'}
             </Button>
           )}
         </div>
@@ -106,7 +108,7 @@ const TransactionHistory = () => {
                   <History className="w-6 h-6 text-primary" />
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Total transactions</p>
+                  <p className="text-sm text-muted-foreground">{lang === 'fr' ? 'Total transactions' : 'Total transactions'}</p>
                   <p className="text-2xl font-bold text-foreground">{stats.total}</p>
                 </div>
               </div>
@@ -120,7 +122,7 @@ const TransactionHistory = () => {
                   <CheckCircle className="w-6 h-6 text-primary" />
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Réussies</p>
+                  <p className="text-sm text-muted-foreground">{t('success')}</p>
                   <p className="text-2xl font-bold text-foreground">{stats.successful}</p>
                 </div>
               </div>
@@ -134,7 +136,7 @@ const TransactionHistory = () => {
                   <Send className="w-6 h-6 text-primary-foreground" />
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">Montant total</p>
+                  <p className="text-sm text-muted-foreground">{t('amountTotal')}</p>
                   <p className="text-2xl font-bold text-primary">{formatCurrency(stats.totalAmount)}</p>
                 </div>
               </div>
@@ -145,9 +147,9 @@ const TransactionHistory = () => {
         {/* Transaction List */}
         <Card>
           <CardHeader>
-            <CardTitle>Transactions récentes</CardTitle>
+            <CardTitle>{lang === 'fr' ? 'Transactions récentes' : 'Recent transactions'}</CardTitle>
             <CardDescription>
-              Liste de toutes vos transactions
+              {lang === 'fr' ? 'Liste de toutes vos transactions' : 'List of all your transactions'}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -157,10 +159,10 @@ const TransactionHistory = () => {
                   <History className="w-8 h-8 text-muted-foreground" />
                 </div>
                 <p className="text-lg font-medium text-foreground mb-2">
-                  Aucune transaction
+                  {lang === 'fr' ? 'Aucune transaction' : 'No transactions'}
                 </p>
                 <p className="text-muted-foreground">
-                  Vos transactions apparaîtront ici
+                  {lang === 'fr' ? 'Vos transactions apparaîtront ici' : 'Your transactions will appear here'}
                 </p>
               </div>
             ) : (
@@ -193,7 +195,7 @@ const TransactionHistory = () => {
                         <p className="font-semibold text-foreground truncate">
                           {transaction.type === 'individual'
                             ? transaction.recipient?.fullName
-                            : `${transaction.recipients?.length || 0} bénéficiaires`}
+                            : `${transaction.recipients?.length || 0} ${lang === 'fr' ? 'bénéficiaires' : 'recipients'}`}
                         </p>
                         {getStatusIcon(transaction.status)}
                       </div>
@@ -202,7 +204,7 @@ const TransactionHistory = () => {
                         <span>{formatDate(transaction.createdAt)}</span>
                         {transaction.type === 'bulk' && transaction.successCount !== undefined && (
                           <span className="px-2 py-0.5 rounded-full bg-accent text-accent-foreground text-xs">
-                            {transaction.successCount} réussis, {transaction.failedCount} échecs
+                            {transaction.successCount} {t('success')}, {transaction.failedCount} {t('failed')}
                           </span>
                         )}
                       </div>

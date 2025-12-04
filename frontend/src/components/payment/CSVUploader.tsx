@@ -6,6 +6,7 @@ import { parseCSV, downloadSampleCSV } from '@/utils/helpers';
 import { Recipient } from '@/types';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
+import { useI18n } from '@/lib/i18n';
 
 interface CSVUploaderProps {
   onUpload: (recipients: Recipient[]) => void;
@@ -13,6 +14,7 @@ interface CSVUploaderProps {
 
 export const CSVUploader = ({ onUpload }: CSVUploaderProps) => {
   const { toast } = useToast();
+  const { t } = useI18n();
   const [isDragging, setIsDragging] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<{
     name: string;
@@ -23,8 +25,8 @@ export const CSVUploader = ({ onUpload }: CSVUploaderProps) => {
     async (file: File) => {
       if (!file.name.endsWith('.csv') || file.type !== 'text/csv') {
         toast({
-          title: 'Format invalide',
-          description: 'Veuillez télécharger  un fichier CSV.',
+          title: t('Format invalide') || 'Format invalide',
+          description: t('Veuillez télécharger  un fichier CSV.') || 'Veuillez télécharger  un fichier CSV.',
           variant: 'destructive',
         });
         return;
@@ -36,9 +38,9 @@ export const CSVUploader = ({ onUpload }: CSVUploaderProps) => {
 
         if (recipients.length === 0) {
           toast({
-            title: 'Fichier vide',
+            title: t('Fichier vide') || 'Fichier vide',
             description:
-              'Aucun bénéficiaire valide trouvé dans le fichier.',
+              t('Aucun bénéficiaire valide trouvé dans le fichier.') || 'Aucun bénéficiaire valide trouvé dans le fichier.',
             variant: 'destructive',
           });
           return;
@@ -48,13 +50,13 @@ export const CSVUploader = ({ onUpload }: CSVUploaderProps) => {
         onUpload(recipients);
 
         toast({
-          title: 'Fichier importé',
-          description: `${recipients.length} bénéficiaires chargés avec succès.`,
+          title: t('Fichier importé') || 'Fichier importé',
+          description: `${recipients.length} ${t('bulk.summary.recipients')} ${t('success').toLowerCase()}.`,
         });
       } catch (error) {
         toast({
-          title: 'Erreur de lecture',
-          description: 'Impossible de lire le fichier. Vérifiez le format.',
+          title: t('Erreur de lecture') || 'Erreur de lecture',
+          description: t('Impossible de lire le fichier. Vérifiez le format.') || 'Impossible de lire le fichier. Vérifiez le format.',
           variant: 'destructive',
         });
       }
@@ -107,9 +109,9 @@ export const CSVUploader = ({ onUpload }: CSVUploaderProps) => {
           {/* Header */}
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="font-semibold text-foreground">Étape 1</h3>
+              <h3 className="font-semibold text-foreground">{t('Étape 1') || 'Étape 1'}</h3>
               <p className="text-sm text-muted-foreground">
-                Téléversement CSV
+                {t('Téléversement CSV') || 'Téléversement CSV'}
               </p>
             </div>
             <Button
@@ -119,7 +121,7 @@ export const CSVUploader = ({ onUpload }: CSVUploaderProps) => {
               className="text-xs"
             >
               <Download className="w-4 h-4 mr-2" />
-              Exemple CSV
+              {t('Exemple CSV') || 'Exemple CSV'}
             </Button>
           </div>
 
@@ -144,7 +146,7 @@ export const CSVUploader = ({ onUpload }: CSVUploaderProps) => {
                       {uploadedFile.name}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {uploadedFile.count} bénéficiaires
+                      {uploadedFile.count} {t('bulk.summary.recipients')}
                     </p>
                   </div>
                 </div>
@@ -166,10 +168,10 @@ export const CSVUploader = ({ onUpload }: CSVUploaderProps) => {
                   )}
                 />
                 <p className="text-foreground font-medium mb-2">
-                  Glissez-déposez votre fichier CSV ici
+                  {t('Glissez-déposez votre fichier CSV ici') || 'Glissez-déposez votre fichier CSV ici'}
                 </p>
                 <p className="text-sm text-muted-foreground mb-4">
-                  ou cliquez pour sélectionner depuis votre appareil
+                  {t('ou cliquez pour sélectionner depuis votre appareil') || 'ou cliquez pour sélectionner depuis votre appareil'}
                 </p>
                 <input
                   type="file"
@@ -185,11 +187,11 @@ export const CSVUploader = ({ onUpload }: CSVUploaderProps) => {
           <div className="flex items-start gap-2 p-3 rounded-lg bg-muted/50 text-sm">
             <AlertCircle className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
             <p className="text-muted-foreground">
-              Format attendu: CSV avec colonnes{' '}
+              {t('Format attendu: CSV avec colonnes') || 'Format attendu: CSV avec colonnes'}{' '}
               <code className="px-1 py-0.5 rounded bg-muted text-foreground">
-                téléphone, nom, montant
+                {t('téléphone, nom, montant') || 'téléphone, nom, montant'}
               </code>
-              . Maximum 10 000 lignes.
+              . {t('Maximum 10 000 lignes.') || 'Maximum 10 000 lignes.'}
             </p>
           </div>
         </div>

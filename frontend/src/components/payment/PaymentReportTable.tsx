@@ -3,12 +3,14 @@ import { Recipient } from '@/types';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { formatCurrency } from '@/utils/helpers';
 import { cn } from '@/lib/utils';
+import { useI18n } from '@/lib/i18n';
 
 export interface PaymentReportTableProps {
   recipients: Recipient[];
 }
 
 export const PaymentReportTable = ({ recipients }: PaymentReportTableProps) => {
+  const { t } = useI18n();
   if (!recipients || recipients.length === 0) return null;
 
   const sorted = [...recipients].sort((a, b) => {
@@ -34,10 +36,10 @@ export const PaymentReportTable = ({ recipients }: PaymentReportTableProps) => {
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[46px]">Statut</TableHead>
-            <TableHead>Bénéficiaire</TableHead>
-            <TableHead>Téléphone</TableHead>
-            <TableHead className="text-right">Montant</TableHead>
+            <TableHead className="w-[46px]">{t('report.table.status')}</TableHead>
+            <TableHead>{t('report.table.beneficiary')}</TableHead>
+            <TableHead>{t('report.table.phone')}</TableHead>
+            <TableHead className="text-right">{t('report.table.amount')}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

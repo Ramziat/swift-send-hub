@@ -8,8 +8,10 @@ import { formatPhoneNumber, validatePhoneNumber, generateId, simulatePayment } f
 import { isApiEnabled } from '@/lib/api';
 import { sendIndividualPayment } from '@/lib/paymentApi';
 import { useToast } from '@/hooks/use-toast';
+import { useI18n } from '@/lib/i18n';
 import { Transaction, Recipient } from '@/types';
 import { notifySuccess } from '@/utils/notify';
+import { speakMultiLanguage, getSuccessMessage } from '@/utils/voiceAssistant';
 
 interface IndividualPaymentFormProps {
   onTransactionComplete: (transaction: Transaction) => void;
@@ -17,6 +19,7 @@ interface IndividualPaymentFormProps {
 
 export const IndividualPaymentForm = ({ onTransactionComplete }: IndividualPaymentFormProps) => {
   const { toast } = useToast();
+  const { t } = useI18n();
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [formData, setFormData] = useState({
@@ -35,8 +38,8 @@ export const IndividualPaymentForm = ({ onTransactionComplete }: IndividualPayme
     // Validation
     if (!validatePhoneNumber(formData.phoneNumber)) {
       toast({
-        title: 'Numéro invalide',
-        description: 'Veuillez entrer un numéro de téléphone valide.',
+        title: t('Numéro invalide') || 'Numéro invalide',
+        description: t('Veuillez entrer un numéro de téléphone valide.') || 'Veuillez entrer un numéro de téléphone valide.',
         variant: 'destructive',
       });
       return;
@@ -44,8 +47,8 @@ export const IndividualPaymentForm = ({ onTransactionComplete }: IndividualPayme
 
     if (!formData.fullName.trim()) {
       toast({
-        title: 'Nom requis',
-        description: 'Veuillez entrer le nom complet du bénéficiaire.',
+        title: t('Nom requis') || 'Nom requis',
+        description: t('Veuillez entrer le nom complet du bénéficiaire.') || 'Veuillez entrer le nom complet du bénéficiaire.',
         variant: 'destructive',
       });
       return;
@@ -54,8 +57,8 @@ export const IndividualPaymentForm = ({ onTransactionComplete }: IndividualPayme
     const amount = parseFloat(formData.amount);
     if (isNaN(amount) || amount <= 0) {
       toast({
-        title: 'Montant invalide',
-        description: 'Veuillez entrer un montant valide.',
+        title: t('Montant invalide') || 'Montant invalide',
+        description: t('Veuillez entrer un montant valide.') || 'Veuillez entrer un montant valide.',
         variant: 'destructive',
       });
       return;
@@ -106,21 +109,24 @@ export const IndividualPaymentForm = ({ onTransactionComplete }: IndividualPayme
         onTransactionComplete(transaction);
 
         // Notify sender (web notification)
-        notifySuccess('Paiement effectué', `${formData.fullName} a reçu ${amount.toLocaleString()} FCFA`);
+        notifySuccess(t('send.success') || 'Paiement effectué', `${formData.fullName} ${t('success')} ${amount.toLocaleString()} FCFA`);
+
+        // Voice confirmation (mock)
+        await speakMultiLanguage(getSuccessMessage(formData.fullName, amount));
 
         // Reset form
         setFormData({ phoneNumber: '', fullName: '', amount: '' });
       } else {
         toast({
-          title: 'Échec du paiement',
-          description: 'Le transfert a échoué. Veuillez réessayer.',
+          title: t('send.failed') || 'Échec du paiement',
+          description: t('Le transfert a échoué. Veuillez réessayer.') || 'Le transfert a échoué. Veuillez réessayer.',
           variant: 'destructive',
         });
       }
     } catch (error) {
       toast({
-        title: 'Erreur',
-        description: 'Une erreur est survenue. Veuillez réessayer.',
+        title: t('Erreur') || 'Erreur',
+        description: t('Une erreur est survenue. Veuillez réessayer.') || 'Une erreur est survenue. Veuillez réessayer.',
         variant: 'destructive',
       });
     } finally {
@@ -135,9 +141,9 @@ export const IndividualPaymentForm = ({ onTransactionComplete }: IndividualPayme
           <div className="mx-auto w-16 h-16 rounded-2xl gradient-primary flex items-center justify-center mb-4 shadow-glow">
             <Send className="w-8 h-8 text-primary-foreground" />
           </div>
-          <CardTitle>Envoyer de l'argent</CardTitle>
+          <CardTitle>{t('send.title')}</CardTitle>
           <CardDescription>
-            Transférez de l'argent facilement et en toute sécurité
+            {t("Transférez de l'argent facilement et en toute sécurité") || "Transférez de l'argent facilement et en toute sécurité"}
           </CardDescription>
         </CardHeader>
 
@@ -147,7 +153,7 @@ export const IndividualPaymentForm = ({ onTransactionComplete }: IndividualPayme
             <div className="space-y-2">
               <label className="text-sm font-medium text-foreground flex items-center gap-2">
                 <Phone className="w-4 h-4 text-primary" />
-                Numéro de téléphone
+                {t('send.form.phone')}
               </label>
               <Input
                 type="tel"
@@ -169,7 +175,7 @@ export const IndividualPaymentForm = ({ onTransactionComplete }: IndividualPayme
             <div className="space-y-2">
               <label className="text-sm font-medium text-foreground flex items-center gap-2">
                 <User className="w-4 h-4 text-primary" />
-                Nom complet du bénéficiaire
+                {t('send.form.name')}
               </label>
               <Input
                 type="text"
@@ -186,7 +192,7 @@ export const IndividualPaymentForm = ({ onTransactionComplete }: IndividualPayme
             <div className="space-y-2">
               <label className="text-sm font-medium text-foreground flex items-center gap-2">
                 <Banknote className="w-4 h-4 text-primary" />
-                Montant (FCFA)
+                {t('send.form.amount')} (FCFA)
               </label>
               <Input
                 type="number"
@@ -225,12 +231,12 @@ export const IndividualPaymentForm = ({ onTransactionComplete }: IndividualPayme
               {isLoading ? (
                 <>
                   <Loader2 className="w-6 h-6 animate-spin" />
-                  Envoi en cours...
+                  {t('bulk.send.processing')}
                 </>
               ) : (
                 <>
                   <Send className="w-6 h-6" />
-                  Envoyer l'argent
+                  {t('send.form.submit')}
                 </>
               )}
             </Button>

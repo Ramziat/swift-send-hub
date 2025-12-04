@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Recipient } from '@/types';
 import { formatCurrency, generateId, validatePhoneNumber } from '@/utils/helpers';
 import { cn } from '@/lib/utils';
+import { useI18n } from '@/lib/i18n';
 
 interface BulkPaymentTableProps {
   recipients: Recipient[];
@@ -18,6 +19,7 @@ export const BulkPaymentTable = ({
   onUpdate,
   isProcessing,
 }: BulkPaymentTableProps) => {
+  const { t } = useI18n();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [newRecipient, setNewRecipient] = useState({
     phoneNumber: '',
@@ -75,10 +77,10 @@ export const BulkPaymentTable = ({
     <Card className="animate-fade-up">
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="text-lg">
-          Bénéficiaires ({recipients.length})
+          {t('bulk.summary.recipients')} ({recipients.length})
         </CardTitle>
         <div className="text-right">
-          <p className="text-sm text-muted-foreground">Total</p>
+          <p className="text-sm text-muted-foreground">{t('bulk.summary.total')}</p>
           <p className="text-xl font-bold text-primary">{formatCurrency(totalAmount)}</p>
         </div>
       </CardHeader>
@@ -88,7 +90,7 @@ export const BulkPaymentTable = ({
         {!isProcessing && (
           <div className="grid grid-cols-1 md:grid-cols-4 gap-3 p-4 rounded-xl bg-muted/50">
             <Input
-              placeholder="Téléphone"
+              placeholder={t('report.table.phone')}
               value={newRecipient.phoneNumber}
               onChange={(e) =>
                 setNewRecipient({ ...newRecipient, phoneNumber: e.target.value })
@@ -96,7 +98,7 @@ export const BulkPaymentTable = ({
               className="h-12"
             />
             <Input
-              placeholder="Nom complet"
+              placeholder={t('send.form.name')}
               value={newRecipient.fullName}
               onChange={(e) =>
                 setNewRecipient({ ...newRecipient, fullName: e.target.value })
@@ -105,7 +107,7 @@ export const BulkPaymentTable = ({
             />
             <Input
               type="number"
-              placeholder="Montant"
+              placeholder={t('report.table.amount')}
               value={newRecipient.amount}
               onChange={(e) =>
                 setNewRecipient({ ...newRecipient, amount: e.target.value })
@@ -122,7 +124,7 @@ export const BulkPaymentTable = ({
               className="h-12"
             >
               <Plus className="w-5 h-5 mr-2" />
-              Ajouter
+              {t('Ajouter') || 'Ajouter'}
             </Button>
           </div>
         )}
@@ -133,20 +135,20 @@ export const BulkPaymentTable = ({
             <thead>
               <tr className="border-b border-border">
                 <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">
-                  Statut
+                  {t('report.table.status')}
                 </th>
                 <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">
-                  Téléphone
+                  {t('report.table.phone')}
                 </th>
                 <th className="text-left py-3 px-4 text-sm font-medium text-muted-foreground">
-                  Nom
+                  {t('send.form.name')}
                 </th>
                 <th className="text-right py-3 px-4 text-sm font-medium text-muted-foreground">
-                  Montant
+                  {t('report.table.amount')}
                 </th>
                 {!isProcessing && (
                   <th className="text-right py-3 px-4 text-sm font-medium text-muted-foreground">
-                    Actions
+                    {t('Actions') || 'Actions'}
                   </th>
                 )}
               </tr>
@@ -158,8 +160,7 @@ export const BulkPaymentTable = ({
                     colSpan={5}
                     className="text-center py-8 text-muted-foreground"
                   >
-                    Aucun bénéficiaire. Ajoutez des destinataires ou importez un
-                    fichier CSV.
+                    {t('Aucun bénéficiaire. Ajoutez des destinataires ou importez un fichier CSV.') || 'Aucun bénéficiaire. Ajoutez des destinataires ou importez un fichier CSV.'}
                   </td>
                 </tr>
               ) : (

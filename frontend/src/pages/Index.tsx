@@ -3,26 +3,28 @@ import { Send, Users, History, ArrowRight, Shield, Zap, Globe } from 'lucide-rea
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Layout } from '@/components/layout/Layout';
+import { useI18n } from '@/lib/i18n';
 
 const features = [
   {
     icon: Zap,
-    title: 'Rapide & Simple',
-    description: 'Envoyez de l\'argent en quelques secondes',
+    titleKey: 'home.feature.fast',
+    descKey: 'home.feature.fast.desc',
   },
   {
     icon: Shield,
-    title: 'Sécurisé',
-    description: 'Transactions protégées et cryptées',
+    titleKey: 'home.feature.secure',
+    descKey: 'home.feature.secure.desc',
   },
   {
     icon: Globe,
-    title: 'Multilingue',
-    description: 'Confirmation vocale en Français et Anglais',
+    titleKey: 'home.feature.multilang',
+    descKey: 'home.feature.multilang.desc',
   },
 ];
 
 const Index = () => {
+  const { t } = useI18n();
   return (
     <Layout>
       <div className="space-y-8">
@@ -30,43 +32,38 @@ const Index = () => {
         <section className="text-center py-8 md:py-12">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent text-accent-foreground text-sm font-medium mb-6 animate-fade-up">
             <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-            Transfert d'argent mobile
+            {t('home.hero.badge')}
           </div>
-          
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-4 animate-fade-up" style={{ animationDelay: '100ms' }}>
-            Envoyez de l'argent{' '}
+            {t('home.hero.title.pre')}{' '}
             <span className="text-transparent bg-clip-text gradient-hero">
-              facilement
+              {t('home.hero.title.highlight')}
             </span>
           </h1>
-          
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8 animate-fade-up" style={{ animationDelay: '200ms' }}>
-            Transférez de l'argent à vos proches en toute simplicité. 
-            Paiements individuels ou en masse, avec confirmation vocale.
+            {t('home.hero.desc')}
           </p>
-
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-up" style={{ animationDelay: '300ms' }}>
             <Link to="/send">
               <Button size="xl" className="w-full sm:w-auto">
                 <Send className="w-5 h-5" />
-                Envoyer de l'argent
+                {t('home.hero.cta.send')}
                 <ArrowRight className="w-5 h-5" />
               </Button>
             </Link>
             <Link to="/bulk">
               <Button variant="outline" size="xl" className="w-full sm:w-auto">
                 <Users className="w-5 h-5" />
-                Paiement de masse
+                {t('home.hero.cta.bulk')}
               </Button>
             </Link>
           </div>
         </section>
-
         {/* Features */}
         <section className="grid grid-cols-1 md:grid-cols-3 gap-4 animate-fade-up" style={{ animationDelay: '400ms' }}>
           {features.map((feature, index) => (
             <Card 
-              key={feature.title} 
+              key={feature.titleKey} 
               className="hover:shadow-xl hover:-translate-y-1 transition-all duration-300"
               style={{ animationDelay: `${500 + index * 100}ms` }}
             >
@@ -75,16 +72,15 @@ const Index = () => {
                   <feature.icon className="w-7 h-7 text-primary-foreground" />
                 </div>
                 <h3 className="font-bold text-lg text-foreground mb-2">
-                  {feature.title}
+                  {t(feature.titleKey)}
                 </h3>
                 <p className="text-muted-foreground">
-                  {feature.description}
+                  {t(feature.descKey)}
                 </p>
               </CardContent>
             </Card>
           ))}
         </section>
-
         {/* Quick Actions */}
         <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Link to="/send" className="group">
@@ -95,18 +91,17 @@ const Index = () => {
                   <Send className="w-6 h-6 text-primary-foreground" />
                 </div>
                 <h3 className="font-bold text-xl text-foreground mb-2">
-                  Paiement Individuel
+                  {t('home.quick.individual.title')}
                 </h3>
                 <p className="text-muted-foreground mb-4">
-                  Envoyez de l'argent à une personne rapidement et simplement.
+                  {t('home.quick.individual.desc')}
                 </p>
                 <span className="text-primary font-medium inline-flex items-center gap-2 group-hover:gap-3 transition-all">
-                  Commencer <ArrowRight className="w-4 h-4" />
+                  {t('home.quick.individual.cta')} <ArrowRight className="w-4 h-4" />
                 </span>
               </CardContent>
             </Card>
           </Link>
-
           <Link to="/bulk" className="group">
             <Card className="h-full hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden">
               <CardContent className="pt-6 relative">
@@ -115,38 +110,37 @@ const Index = () => {
                   <Users className="w-6 h-6 text-secondary-foreground" />
                 </div>
                 <h3 className="font-bold text-xl text-foreground mb-2">
-                  Paiement de Masse
+                  {t('home.quick.bulk.title')}
                 </h3>
                 <p className="text-muted-foreground mb-4">
-                  Envoyez à plusieurs personnes en une seule opération.
+                  {t('home.quick.bulk.desc')}
                 </p>
                 <span className="text-secondary font-medium inline-flex items-center gap-2 group-hover:gap-3 transition-all">
-                  Mode Admin <ArrowRight className="w-4 h-4" />
+                  {t('home.quick.bulk.cta')} <ArrowRight className="w-4 h-4" />
                 </span>
               </CardContent>
             </Card>
           </Link>
         </section>
-
         {/* Stats Preview */}
         <Card className="gradient-hero text-primary-foreground overflow-hidden">
           <CardContent className="py-8">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
               <div>
                 <p className="text-4xl md:text-5xl font-bold mb-1">100K+</p>
-                <p className="text-primary-foreground/80 text-sm">Utilisateurs</p>
+                <p className="text-primary-foreground/80 text-sm">{t('home.stats.users')}</p>
               </div>
               <div>
                 <p className="text-4xl md:text-5xl font-bold mb-1">5M+</p>
-                <p className="text-primary-foreground/80 text-sm">Transactions</p>
+                <p className="text-primary-foreground/80 text-sm">{t('home.stats.transactions')}</p>
               </div>
               <div>
                 <p className="text-4xl md:text-5xl font-bold mb-1">99.9%</p>
-                <p className="text-primary-foreground/80 text-sm">Fiabilité</p>
+                <p className="text-primary-foreground/80 text-sm">{t('home.stats.reliability')}</p>
               </div>
               <div>
                 <p className="text-4xl md:text-5xl font-bold mb-1">24/7</p>
-                <p className="text-primary-foreground/80 text-sm">Disponibilité</p>
+                <p className="text-primary-foreground/80 text-sm">{t('home.stats.availability')}</p>
               </div>
             </div>
           </CardContent>

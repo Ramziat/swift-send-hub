@@ -12,9 +12,12 @@ import { isApiEnabled } from '@/lib/api';
 import { sendIndividualPayment } from '@/lib/paymentApi';
 import { useToast } from '@/hooks/use-toast';
 import { notifySuccess } from '@/utils/notify';
+import { speakMultiLanguage, getBulkSuccessMessage } from '@/utils/voiceAssistant';
+import { useI18n } from '@/lib/i18n';
 
 const BulkPayment = () => {
   const { toast } = useToast();
+  const { t } = useI18n();
   const [recipients, setRecipients] = useState<Recipient[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
@@ -36,8 +39,8 @@ const BulkPayment = () => {
   const handleSendAll = async () => {
     if (recipients.length === 0) {
       toast({
-        title: 'Aucun bénéficiaire',
-        description: 'Veuillez ajouter des bénéficiaires avant d\'envoyer.',
+        title: t('Aucun bénéficiaire') || 'Aucun bénéficiaire',
+        description: t("Veuillez ajouter des bénéficiaires avant d'envoyer.") || "Veuillez ajouter des bénéficiaires avant d'envoyer.",
         variant: 'destructive',
       });
       return;
@@ -101,10 +104,11 @@ const BulkPayment = () => {
     setShowSuccess(true);
 
     // Notify sender (web notification)
-    notifySuccess(
-      'Paiements de masse terminés',
-      `${successCount} réussis, ${failedCount} échecs • Total ${totalSuccessAmount.toLocaleString()} FCFA`
-    );
+    const notificationTitle = t('Paiements de masse terminés') || 'Paiements de masse terminés';
+    const notificationBody = `${successCount} ${t('success')} , ${failedCount} ${t('failed')} • ${t('bulk.summary.total')} ${totalSuccessAmount.toLocaleString()} FCFA`;
+    notifySuccess(notificationTitle, notificationBody);
+    // Voice confirmation: read the notification message
+    await speakMultiLanguage(getBulkSuccessMessage(successCount, failedCount, totalSuccessAmount));
 
     // Save transaction (local fallback store)
     const transaction: Transaction = {
@@ -144,10 +148,10 @@ const BulkPayment = () => {
         {/* Header */}
         <div className="text-center md:text-left">
           <h1 className="text-3xl font-bold text-foreground mb-2">
-            Paiements de Masse
+            {t('bulk.title')}
           </h1>
           <p className="text-muted-foreground">
-            Envoyez de l'argent à plusieurs bénéficiaires en une seule opération
+            {t('bulk.subtitle')}
           </p>
         </div>
 
@@ -159,8 +163,8 @@ const BulkPayment = () => {
                 <div className="flex items-center gap-3">
                   <CheckCircle className="w-5 h-5 text-primary" />
                   <div>
-                    <p className="font-semibold text-foreground">Paiement en masse (CSV)</p>
-                    <p className="text-sm text-muted-foreground">Importez un fichier ou ajoutez manuellement</p>
+                    <p className="font-semibold text-foreground">{t('bulk.mode.csv')}</p>
+                    <p className="text-sm text-muted-foreground">{t('bulk.mode.desc')}</p>
                   </div>
                 </div>
               </div>
@@ -185,19 +189,19 @@ const BulkPayment = () => {
               <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
                 <div className="flex flex-wrap items-center gap-4 md:gap-6">
                   <div>
-                    <p className="text-sm text-muted-foreground">Bénéficiaires</p>
+                    <p className="text-sm text-muted-foreground">{t('bulk.summary.recipients')}</p>
                     <p className="text-xl font-bold text-foreground">{recipients.length}</p>
                   </div>
                   <div className="w-px h-10 bg-border hidden sm:block" />
                   <div>
-                    <p className="text-sm text-muted-foreground">Montant Total</p>
+                    <p className="text-sm text-muted-foreground">{t('bulk.summary.total')}</p>
                     <p className="text-xl font-bold text-primary">{formatCurrency(totalAmount)}</p>
                   </div>
                   {isProcessing && (
                     <>
                       <div className="w-px h-10 bg-border hidden sm:block" />
                       <div>
-                        <p className="text-sm text-muted-foreground">En cours</p>
+                        <p className="text-sm text-muted-foreground">{t('bulk.summary.pending')}</p>
                         <p className="text-xl font-bold text-secondary">{pendingCount}</p>
                       </div>
                     </>
@@ -213,12 +217,12 @@ const BulkPayment = () => {
                   {isProcessing ? (
                     <>
                       <Loader2 className="w-5 h-5 animate-spin" />
-                      Envoi en cours...
+                      {t('bulk.send.processing')}
                     </>
                   ) : (
                     <>
                       <Send className="w-5 h-5" />
-                      Envoyer tout ({recipients.length})
+                      {t('bulk.send.cta')} ({recipients.length})
                     </>
                   )}
                 </Button>
@@ -234,8 +238,8 @@ const BulkPayment = () => {
               <div className="flex items-center gap-3">
                 <AlertTriangle className="w-5 h-5 text-orange-500" />
                 <p className="text-sm text-foreground">
-                  <strong>Attention:</strong> Vous avez {recipients.length} bénéficiaires. 
-                  L'envoi peut prendre plusieurs minutes.
+                  <strong>{t('bulk.warning.title')}</strong> {t('bulk.summary.recipients')} {recipients.length}. 
+                  {t('bulk.warning.body')}
                 </p>
               </div>
             </CardContent>

@@ -11,6 +11,9 @@ export const notifySuccess = async (title: string, body: string) => {
     const allowed = await requestNotificationPermission();
     if (!allowed) return;
     new Notification(title, { body });
+    // Play notification sound
+    const audio = new window.Audio('/notification.mp3');
+    audio.play().catch(() => {});
   } catch {
     // ignore
   }

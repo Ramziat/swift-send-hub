@@ -2,20 +2,43 @@ import { NavLink, useLocation } from 'react-router-dom';
 import { Home, Send, Users, History, Menu, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
-
-const navItems = [
-  { path: '/', label: 'Accueil', icon: Home },
-  { path: '/send', label: 'Envoyer', icon: Send },
-  { path: '/bulk', label: 'Masse', icon: Users },
-  { path: '/history', label: 'Historique', icon: History },
-];
+import { useI18n } from '@/lib/i18n';
 
 export const Navigation = () => {
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
+  const { lang, setLang, t } = useI18n();
+  const navItems = [
+    { path: '/', label: t('nav.home') || 'Home', icon: Home },
+    { path: '/send', label: t('nav.send') || 'Send Money', icon: Send },
+    { path: '/bulk', label: t('nav.bulk') || 'Bulk Payment', icon: Users },
+    { path: '/history', label: t('nav.history') || 'History', icon: History },
+  ];
 
   return (
     <>
+      {/* Language Toggle - Mobile Header */}
+      <div className="absolute right-4 top-4 md:hidden flex items-center gap-2">
+        <span className="text-xs text-muted-foreground">Lang</span>
+        <button
+          className={cn(
+            'px-2 py-1 text-xs rounded-lg',
+            lang === 'fr' ? 'bg-primary text-primary-foreground' : 'bg-muted'
+          )}
+          onClick={() => setLang('fr')}
+        >
+          FR
+        </button>
+        <button
+          className={cn(
+            'px-2 py-1 text-xs rounded-lg',
+            lang === 'en' ? 'bg-primary text-primary-foreground' : 'bg-muted'
+          )}
+          onClick={() => setLang('en')}
+        >
+          EN
+        </button>
+      </div>
       {/* Mobile Header */}
       <header className="fixed top-0 left-0 right-0 z-50 md:hidden">
         <div className="glass-card mx-4 mt-4 rounded-2xl">
@@ -24,7 +47,7 @@ export const Navigation = () => {
               <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center">
                 <span className="text-primary-foreground font-bold text-lg">M</span>
               </div>
-              <span className="font-bold text-lg text-foreground">MoJaPay</span>
+              <span className="font-bold text-lg text-foreground">{t('app.name') || 'MoJaPay'}</span>
             </div>
             <button
               onClick={() => setIsOpen(!isOpen)}
@@ -71,8 +94,8 @@ export const Navigation = () => {
               <span className="text-primary-foreground font-bold text-xl">M</span>
             </div>
             <div>
-              <h1 className="font-bold text-xl text-foreground">MoJaPay</h1>
-              <p className="text-xs text-muted-foreground">Send Money</p>
+              <h1 className="font-bold text-xl text-foreground">{t('app.name') || 'MoJaPay'}</h1>
+              <p className="text-xs text-muted-foreground">{t('nav.send') || 'Send Money'}</p>
             </div>
           </div>
 
@@ -96,6 +119,29 @@ export const Navigation = () => {
               </NavLink>
             ))}
           </nav>
+
+          {/* Language Toggle - Desktop Sidebar */}
+          <div className="flex items-center gap-2 mt-4">
+            <span className="text-xs text-muted-foreground">Lang</span>
+            <button
+              className={cn(
+                'px-2 py-1 text-xs rounded-lg',
+                lang === 'fr' ? 'bg-primary text-primary-foreground' : 'bg-muted'
+              )}
+              onClick={() => setLang('fr')}
+            >
+              FR
+            </button>
+            <button
+              className={cn(
+                'px-2 py-1 text-xs rounded-lg',
+                lang === 'en' ? 'bg-primary text-primary-foreground' : 'bg-muted'
+              )}
+              onClick={() => setLang('en')}
+            >
+              EN
+            </button>
+          </div>
 
           {/* Footer */}
           <div className="pt-4 border-t border-border/50">
