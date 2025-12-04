@@ -1,0 +1,27 @@
+import * as React from "react";
+
+import { cn } from "@/lib/utils";
+
+const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
+  ({ className, type, ...props }, ref) => {
+    return (
+      <input
+        type={type}
+        className={cn(
+          "flex h-14 w-full rounded-xl border-2 border-input bg-card px-4 py-3 text-base font-medium ring-offset-background transition-all duration-200",
+          "placeholder:text-muted-foreground placeholder:font-normal",
+          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:border-primary",
+          "disabled:cursor-not-allowed disabled:opacity-50",
+          "hover:border-primary/50",
+          "[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none",
+          className
+        )}
+        ref={ref}
+        {...props}
+      />
+    );
+  }
+);
+Input.displayName = "Input";
+
+export { Input };
