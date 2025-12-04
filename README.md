@@ -1,13 +1,3 @@
-# Welcome to your Lovable project
-
-## Project info
-
-**URL**: https://lovable.dev/projects/d6fa8cd9-654e-4c54-9552-fbb07b9cc4ba
-
-## How can I edit this code?
-
-There are several ways of editing your application.
-
 # Swift Send Hub
 
 Application web de transfert d’argent construite avec Vite, React, TypeScript, shadcn-ui et Tailwind CSS.
@@ -90,14 +80,6 @@ python manage.py runserver 0.0.0.0:8000
 
 With `VITE_API_BASE_URL` set, the app will use the backend endpoints. If not set, it falls back to local simulation for demo purposes.
 
-## How can I deploy this project?
+## Déploiement
 
-Simply open [Lovable](https://lovable.dev/projects/d6fa8cd9-654e-4c54-9552-fbb07b9cc4ba) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Vous pouvez déployer le frontend (build Vite) sur tout hébergeur statique (Netlify, Vercel, GitHub Pages) et brancher un backend Django séparément.
