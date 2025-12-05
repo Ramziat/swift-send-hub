@@ -20,7 +20,26 @@ class BulkTransferUploadAPIView(APIView):
         
         # 2. Déclenche le traitement (simulation synchrone pour le moment)
         try:
-            process_bulk_file(job.id) 
+            # On lit le CSV AVANT traitement pour extraire la liste des bénéficiaires
+            file_obj = job.file.open('r')
+            import csv
+            reader = csv.DictReader(file_obj)
+            recipients = []
+            total_amount = 0
+            for row in reader:
+                try:
+                    recipients.append({
+                        'phoneNumber': row.get('valeur_id', ''),
+                        'fullName': row.get('nom_complet', ''),
+                        'amount': float(row.get('montant', 0)),
+                        'currency': row.get('devise', 'XOF'),
+                    })
+                    total_amount += float(row.get('montant', 0) or 0)
+                except Exception:
+                    pass
+            file_obj.close()
+
+            process_bulk_file(job.id)
             job.refresh_from_db() # Recharge le statut après l'exécution
         except Exception as e:
             job.status = 'FAILED'
@@ -31,12 +50,14 @@ class BulkTransferUploadAPIView(APIView):
                 "job_id": job.id,
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-        # 3. Réponse
+        # 3. Réponse enrichie
         return Response({
             "message": "Bulk transfer job initiated and completed (synchronous mode).",
             "job_id": job.id,
             "status": job.status,
             "total_processed": job.total_transfers,
+            "total_amount": total_amount,
+            "recipients": recipients,
             "url_status": f"/api/v1/bulk/status/{job.id}"
         }, status=status.HTTP_202_ACCEPTED)
 

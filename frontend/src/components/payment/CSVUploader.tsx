@@ -2,7 +2,8 @@ import { useCallback, useState } from 'react';
 import { Upload, FileText, Download, X, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { parseCSV, downloadSampleCSV } from '@/utils/helpers';
+import { downloadSampleCSV } from '@/utils/helpers';
+import { sendBulkPaymentCSV } from '@/lib/paymentApi';
 import { Recipient } from '@/types';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
@@ -33,30 +34,33 @@ export const CSVUploader = ({ onUpload }: CSVUploaderProps) => {
       }
 
       try {
-        const content = await file.text();
-        const recipients = parseCSV(content);
-
-        if (recipients.length === 0) {
-          toast({
-            title: t('Fichier vide') || 'Fichier vide',
-            description:
-              t('Aucun bénéficiaire valide trouvé dans le fichier.') || 'Aucun bénéficiaire valide trouvé dans le fichier.',
-            variant: 'destructive',
-          });
-          return;
+        // Envoi du fichier au backend
+        const response = await sendBulkPaymentCSV(file);
+        const total = response.data.total_processed || 0;
+        setUploadedFile({ name: file.name, count: total });
+        // Stocke le job_id pour la récupération du rapport
+        if (response.data.job_id) {
+          window.sessionStorage.setItem('last_bulk_job_id', response.data.job_id.toString());
         }
-
-        setUploadedFile({ name: file.name, count: recipients.length });
+        // Utilise le numéro comme ID pour le rapport (affichage colonne ID = numéro)
+        const recipients = (response.data.recipients || []).map((r: any, i: number) => ({
+          id: r.phoneNumber || r.valeur_id || r.id || '',
+          phoneNumber: r.phoneNumber || r.valeur_id || '',
+          fullName: r.fullName || r.nom_complet || '',
+          amount: r.amount || r.montant || 0,
+          currency: r.currency || r.devise || 'XOF',
+          status: 'pending',
+        }));
         onUpload(recipients);
 
         toast({
           title: t('Fichier importé') || 'Fichier importé',
-          description: `${recipients.length} ${t('bulk.summary.recipients')} ${t('success').toLowerCase()}.`,
+          description: response.data.message || 'Fichier envoyé au backend.',
         });
-      } catch (error) {
+      } catch (error: any) {
         toast({
-          title: t('Erreur de lecture') || 'Erreur de lecture',
-          description: t('Impossible de lire le fichier. Vérifiez le format.') || 'Impossible de lire le fichier. Vérifiez le format.',
+          title: t('Erreur d\'upload') || 'Erreur d\'upload',
+          description: error?.message || 'Impossible d\'uploader le fichier.',
           variant: 'destructive',
         });
       }

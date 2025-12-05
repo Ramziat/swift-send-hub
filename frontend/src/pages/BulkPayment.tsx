@@ -3,7 +3,7 @@ import { Send, Loader2, AlertTriangle, CheckCircle } from 'lucide-react';
 import { Layout } from '@/components/layout/Layout';
 import { CSVUploader } from '@/components/payment/CSVUploader';
 import { BulkPaymentTable } from '@/components/payment/BulkPaymentTable';
-import { SuccessModal } from '@/components/payment/SuccessModal';
+import { PaymentReportTable } from '@/components/payment/PaymentReportTable';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Recipient, Transaction } from '@/types';
@@ -53,10 +53,8 @@ const BulkPayment = () => {
 
     // Process each recipient (prefer backend if configured)
     const updatedRecipients = [...recipients];
-    
     for (let i = 0; i < updatedRecipients.length; i++) {
       const recipient = updatedRecipients[i];
-      
       try {
         let success = false;
         if (isApiEnabled()) {
@@ -103,33 +101,31 @@ const BulkPayment = () => {
     setReportRecipients(updatedRecipients);
     setShowSuccess(true);
 
-    // Notify sender (web notification)
-    const notificationTitle = t('Paiements de masse terminés') || 'Paiements de masse terminés';
-    const notificationBody = `${successCount} ${t('success')} , ${failedCount} ${t('failed')} • ${t('bulk.summary.total')} ${totalSuccessAmount.toLocaleString()} FCFA`;
-    notifySuccess(notificationTitle, notificationBody);
-    // Voice confirmation: read the notification message
-    await speakMultiLanguage(getBulkSuccessMessage(successCount, failedCount, totalSuccessAmount));
-
-    // Save transaction (local fallback store)
-    const transaction: Transaction = {
-      id: generateId(),
-      type: 'bulk',
-      recipients: updatedRecipients,
-      totalAmount: totalSuccessAmount,
-      status: failedCount === 0 ? 'success' : failedCount === recipients.length ? 'failed' : 'partial',
-      createdAt: new Date(),
-      successCount,
-      failedCount,
-    };
-
-    const existingTransactions = JSON.parse(
-      localStorage.getItem('transactions') || '[]'
-    );
-    existingTransactions.unshift({
-      ...transaction,
-      createdAt: transaction.createdAt.toISOString(),
-    });
-    localStorage.setItem('transactions', JSON.stringify(existingTransactions));
+    // Notification de réussite
+    if (successCount > 0) {
+      const notifTitle = t('Paiements de masse terminés') || 'Paiements de masse terminés';
+      const notifBody = `${successCount} réussis, ${failedCount} échecs • Total ${totalSuccessAmount.toLocaleString()} FCFA`;
+      const voiceMsg = getBulkSuccessMessage(successCount, failedCount, totalSuccessAmount);
+      console.log('[BulkPayment] Appel notifySuccess', notifTitle, notifBody);
+      await notifySuccess(notifTitle, notifBody);
+      // Affiche le message vocal dans un toast en haut pendant la lecture
+      toast({
+        title: notifTitle,
+        description: (
+          <div
+            className="flex flex-row items-center gap-4 whitespace-nowrap overflow-x-auto text-base max-w-full"
+            style={{ lineHeight: 1.3 }}
+          >
+            <span className="truncate font-medium">{voiceMsg.fr}</span>
+            <span className="ml-2 italic text-xs text-muted-foreground shrink-0">(Lecture vocale en cours...)</span>
+          </div>
+        ),
+        variant: 'success',
+        className: 'fixed top-4 left-1/2 -translate-x-1/2 z-[9999] w-fit',
+        duration: 10000,
+      });
+      await speakMultiLanguage(voiceMsg);
+    }
   };
 
   const handleCloseSuccess = () => {
@@ -247,16 +243,27 @@ const BulkPayment = () => {
         )}
       </div>
 
-      {/* Success Modal */}
-      <SuccessModal
-        isOpen={showSuccess}
-        onClose={handleCloseSuccess}
-        type="bulk"
-        successCount={results?.successCount || 0}
-        failedCount={results?.failedCount || 0}
-        totalAmount={results?.totalAmount || 0}
-        recipients={reportRecipients}
-      />
+      {/* Rapport de paiement en bas, sous forme de tableau */}
+      {showSuccess && (
+        <div className="mt-10">
+          <h2 className="text-2xl font-bold mb-4 text-foreground">Rapport de paiement</h2>
+          <div className="mb-4 flex flex-wrap gap-6">
+            <div>
+              <span className="text-muted-foreground">Succès :</span> <span className="font-bold text-primary">{results?.successCount || 0}</span>
+            </div>
+            <div>
+              <span className="text-muted-foreground">Échecs :</span> <span className="font-bold text-destructive">{results?.failedCount || 0}</span>
+            </div>
+            <div>
+              <span className="text-muted-foreground">Montant total :</span> <span className="font-bold">{formatCurrency(results?.totalAmount || 0)}</span>
+            </div>
+            <button onClick={handleCloseSuccess} className="ml-auto text-sm underline text-muted-foreground">Réinitialiser</button>
+          </div>
+          <div className="mb-8">
+            <PaymentReportTable recipients={reportRecipients} />
+          </div>
+        </div>
+      )}
     </Layout>
   );
 };

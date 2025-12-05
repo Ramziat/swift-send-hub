@@ -83,6 +83,7 @@ export const IndividualPaymentForm = ({ onTransactionComplete }: IndividualPayme
             phone_number: recipient.phoneNumber,
             full_name: recipient.fullName,
             amount: recipient.amount,
+            currency: "XOF",
           });
           success = !!resp.ok;
         } catch (e) {
