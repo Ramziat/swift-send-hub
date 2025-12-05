@@ -1,0 +1,35 @@
+services:
+  redis:
+    image: "redis:6-alpine"
+    container_name: redis_mojaloop
+    ports:
+      - "6380:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # Version stable et simple du SDK (v11.x - pas de Kafka requis)
+  scheme-adapter:
+    image: "mojaloop/sdk-scheme-adapter:v11.18.11"
+    container_name: sdk_scheme_adapter
+    env_file: ./scheme-adapter.env
+    ports:
+      - "4000:4000"
+      - "4001:4001"
+    depends_on:
+      redis:
+        condition: service_healthy
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: on-failure
+
+  mock-backend:
+    image: "mojaloop/sdk-mock-dfsp-backend"
+    env_file: ./backend.env
+    container_name: mock_dfsp_backend
+    ports:
+      - "23000:3000"
+    depends_on:
+      - scheme-adapter
