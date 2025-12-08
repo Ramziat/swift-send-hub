@@ -31,6 +31,7 @@ export const PaymentReportTable = ({ recipients }: PaymentReportTableProps) => {
   // Colonnes pour l'export local (Nom, ID, Montant, Statut)
   const exportColumns = [
     { key: 'fullName', header: 'Nom' },
+    { key: 'transactionId', header: 'Transaction ID' },
     { key: 'id', header: 'ID' },
     { key: 'amount', header: 'Montant', map: (r: any) => r.amount },
     { key: 'status', header: 'Statut', map: (r: any) => r.status || 'pending' },
@@ -56,6 +57,7 @@ export const PaymentReportTable = ({ recipients }: PaymentReportTableProps) => {
         <TableHeader>
           <TableRow>
             <TableHead>Nom</TableHead>
+            <TableHead>Transaction ID</TableHead>
             <TableHead>ID</TableHead>
             <TableHead>Montant</TableHead>
             <TableHead>Statut</TableHead>
@@ -65,6 +67,11 @@ export const PaymentReportTable = ({ recipients }: PaymentReportTableProps) => {
           {recipients.map((r, idx) => (
             <TableRow key={r.id || idx} className={cn(r.status === 'failed' && 'bg-destructive/5')}>
               <TableCell className="font-medium text-foreground">{r.fullName}</TableCell>
+              <TableCell className="text-muted-foreground">{
+                (typeof r.transactionId === 'number' || (typeof r.transactionId === 'string' && r.transactionId.trim() !== ''))
+                  ? r.transactionId
+                  : ''
+              }</TableCell>
               <TableCell className="text-muted-foreground">{r.id}</TableCell>
               <TableCell className="text-right font-semibold">{formatCurrency(Number(r.amount))}</TableCell>
               <TableCell>

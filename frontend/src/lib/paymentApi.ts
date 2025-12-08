@@ -75,7 +75,9 @@ export async function sendBulkPayment(recipients: Recipient[], senderMsisdn?: st
         amount: r.amount,
         sender_msisdn: senderMsisdn,
       });
-      results.push({ ...r, success: true, result });
+      // Ajoute l'id de transaction si présent dans la réponse
+      const transactionId = result?.id || result?.transactionId || undefined;
+      results.push({ ...r, success: true, result, transactionId });
     } catch (error) {
       results.push({ ...r, success: false, error });
     }
