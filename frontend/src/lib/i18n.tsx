@@ -105,6 +105,7 @@ type I18nContextValue = {
   lang: Language;
   setLang: (l: Language) => void;
   t: (key: keyof typeof messages | string) => string;
+    // trigger redeploy: 2025-12-08
 };
 
 const I18nContext = createContext<I18nContextValue | undefined>(undefined);
